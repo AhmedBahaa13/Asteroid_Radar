@@ -58,11 +58,12 @@ fun bindRecyclerData(recyclerView: RecyclerView,list:List<Asteroid>?){
 fun bindMainImage(imageView: ImageView,image: MainImage?){
     image?.let {
         Picasso.with(imageView.context).load(image.url).into(imageView)
+        imageView.contentDescription = image.title
     }
 }
 
 @BindingAdapter("showProgressBar")
-fun bindMainImage(progressBar: ProgressBar,showProgressBar:Boolean){
+fun bindProgressBar(progressBar: ProgressBar,showProgressBar:Boolean){
     if (showProgressBar){
         progressBar.visibility = View.VISIBLE
     }else{
