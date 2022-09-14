@@ -6,11 +6,13 @@ import com.udacity.asteroidradar.Constants
 import com.udacity.asteroidradar.MainImage
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
+import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.converter.scalars.ScalarsConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Query
+import java.util.concurrent.TimeUnit
 
 const val BASE_URL = "https://api.nasa.gov/"
 
@@ -23,16 +25,16 @@ private val moshi = Moshi.Builder()
 
 interface NasaApi {
     @GET("neo/rest/v1/feed")
-    suspend fun getAsteroid(
+     fun getAsteroid(
         @Query("start_date") startDate: String,
         @Query("end_date") endDate: String,
         @Query("api_key") apiKey: String = Constants.API_KEY
-    ): String
+    ): Response<String>
 
     @GET("planetary/apod")
     suspend fun getMainImage(
         @Query("api_key") apiKey: String = Constants.API_KEY
-    ): MainImage
+    ): Response<MainImage>
 }
 
 object NasaApiProvider {
@@ -40,7 +42,7 @@ object NasaApiProvider {
     private val logging = HttpLoggingInterceptor()
     init {
         logging.level = HttpLoggingInterceptor.Level.BODY
-        val httpClient = OkHttpClient.Builder()
+        val httpClient = OkHttpClient.Builder().readTimeout(10,TimeUnit.SECONDS)
         httpClient.addInterceptor(logging)
          retrofit = Retrofit.Builder()
             .baseUrl(BASE_URL)

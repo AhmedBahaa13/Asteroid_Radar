@@ -1,20 +1,20 @@
 package com.udacity.asteroidradar.main
 
 import android.app.Application
-import android.util.Log
 import androidx.lifecycle.*
+import androidx.work.*
 import com.udacity.asteroidradar.Asteroid
 import com.udacity.asteroidradar.Constants
+import com.udacity.asteroidradar.DataWorker
 import com.udacity.asteroidradar.MainImage
 import com.udacity.asteroidradar.api.NasaApiProvider
-import com.udacity.asteroidradar.api.parseAsteroidsJsonResult
 import com.udacity.asteroidradar.database.AsteroidDatabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.json.JSONObject
 import java.text.SimpleDateFormat
 import java.util.*
+
 
 class MainViewModel(val app:Application) : AndroidViewModel(app) {
     private var currentTime = ""
@@ -33,32 +33,27 @@ class MainViewModel(val app:Application) : AndroidViewModel(app) {
         get() = mainImageMutableLiveData
 
     init {
+        getData()
         getTodayAsteroids()
     }
 
-   private fun getData(getDay:Boolean) {
+   private fun getData() {
         val calendar = Calendar.getInstance()
         val dateFormat = SimpleDateFormat(Constants.API_QUERY_DATE_FORMAT, Locale.getDefault())
         currentTime = dateFormat.format(calendar.time)
         calendar.add(Calendar.WEEK_OF_YEAR,1)
         dateAfterSevenDays = dateFormat.format(calendar.time)
-        viewModelScope.launch(Dispatchers.IO) {
-            val response = when(getDay){
-                true ->  NasaApiProvider.retrofitService.getAsteroid(currentTime, currentTime)
-                false -> NasaApiProvider.retrofitService.getAsteroid(currentTime, dateAfterSevenDays)
-            }
-            val asteroids = parseAsteroidsJsonResult(JSONObject(response))
-            Log.d("MainViewModel", "asteroids Size: ${asteroids.size}")
-            asteroids.forEach {
-                dao.insert(it)
-            }
-            withContext(Dispatchers.Main){
-                mainImageMutableLiveData.value = NasaApiProvider.retrofitService.getMainImage()
-            }
-        }
+       viewModelScope.launch{
+           mainImageMutableLiveData.value = NasaApiProvider.retrofitService.getMainImage().body()
+       }
+
+       val constraints = Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()
+       val onetimeJob: OneTimeWorkRequest = OneTimeWorkRequest.Builder(DataWorker::class.java)
+           .setConstraints(constraints).build()
+
+       WorkManager.getInstance().enqueue(onetimeJob)
     }
     fun getTodayAsteroids(){
-        getData(true)
         viewModelScope.launch(Dispatchers.IO) {
             val data =  dao.getToDay(currentTime)
             withContext(Dispatchers.Main){
@@ -69,7 +64,6 @@ class MainViewModel(val app:Application) : AndroidViewModel(app) {
     }
 
     fun getWeekAsteroids(){
-        getData(false)
         viewModelScope.launch(Dispatchers.IO) {
             val data =  dao.getWeek(currentTime,dateAfterSevenDays)
             withContext(Dispatchers.Main){

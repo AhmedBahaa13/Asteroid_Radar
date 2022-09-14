@@ -20,11 +20,12 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
+            android:contentDescription="@{asteroid.codename}"
             android:text="@{asteroid.codename}"
             android:textColor="@color/default_text_color"
             android:textSize="20sp"
-            app:layout_constraintStart_toStartOf="parent"
             android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="AAAAAA"
             tools:textColor="@color/colorAccent" />
@@ -34,6 +35,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
+            android:contentDescription="@{asteroid.closeApproachDate}"
             android:text="@{asteroid.closeApproachDate}"
             android:textColor="@color/default_text_color"
             android:textSize="18sp"
@@ -51,7 +53,7 @@
             app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toEndOf="@+id/code_name"
             app:layout_constraintTop_toTopOf="@+id/code_name"
-            app:srcCompat="@drawable/ic_status_normal"
-            app:tint="@color/colorAccent" />
+            app:statusIcon="@{asteroid.potentiallyHazardous}"
+             />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

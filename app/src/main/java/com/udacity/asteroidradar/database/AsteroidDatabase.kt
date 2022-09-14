@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import com.udacity.asteroidradar.Asteroid
 
-@Database(entities = [Asteroid::class], version = 2, exportSchema = false)
+@Database(entities = [Asteroid::class], version = 3, exportSchema = false)
 abstract class AsteroidDatabase : RoomDatabase() {
 
     abstract fun asteroidDao():AsteroidDao
@@ -20,7 +20,7 @@ abstract class AsteroidDatabase : RoomDatabase() {
                 context.applicationContext,
                 AsteroidDatabase::class.java,
                 "asteroid_data_base"
-            ).build()
+            ).fallbackToDestructiveMigration().build()
         }
     }
 }
