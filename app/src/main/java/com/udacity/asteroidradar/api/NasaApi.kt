@@ -25,7 +25,7 @@ private val moshi = Moshi.Builder()
 
 interface NasaApi {
     @GET("neo/rest/v1/feed")
-     fun getAsteroid(
+    suspend fun getAsteroid(
         @Query("start_date") startDate: String,
         @Query("end_date") endDate: String,
         @Query("api_key") apiKey: String = Constants.API_KEY

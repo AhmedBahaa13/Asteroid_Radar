@@ -1,91 +1,77 @@
 package com.udacity.asteroidradar.main
 
 import android.app.Application
-import androidx.lifecycle.*
-import androidx.work.*
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import com.udacity.asteroidradar.Asteroid
-import com.udacity.asteroidradar.Constants
-import com.udacity.asteroidradar.DataWorker
 import com.udacity.asteroidradar.MainImage
 import com.udacity.asteroidradar.api.NasaApiProvider
+import com.udacity.asteroidradar.api.getSeventhDay
+import com.udacity.asteroidradar.api.getToday
 import com.udacity.asteroidradar.database.AsteroidDatabase
-import kotlinx.coroutines.Dispatchers
+import com.udacity.asteroidradar.repository.AsteroidsRepository
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.text.SimpleDateFormat
-import java.util.*
-import java.util.concurrent.TimeUnit
 
 
-class MainViewModel(val app:Application) : AndroidViewModel(app) {
-    private var currentTime = ""
-    private var dateAfterSevenDays = ""
+class MainViewModel(val app: Application) : AndroidViewModel(app) {
 
-    private val dao = AsteroidDatabase.getInstance(app).asteroidDao()
+    private val db = AsteroidDatabase.getInstance(app)
+    private val repository = AsteroidsRepository(db)
 
     val showProgressBar = MutableLiveData<Boolean>(true)
 
-    private val asteroidList = MutableLiveData<List<Asteroid>?>()
-    val asteroidListLiveData: LiveData<List<Asteroid>?>
-        get() = asteroidList
+    private var _asteroids = MutableLiveData<List<Asteroid>>()
+    val asteroids: LiveData<List<Asteroid>>
+        get() = _asteroids
+
+    private val _displaySnackbarEvent = MutableLiveData<Boolean>()
+    val displaySnackbarEvent: LiveData<Boolean>
+        get() = _displaySnackbarEvent
 
     private val mainImageMutableLiveData = MutableLiveData<MainImage>()
     val mainImageLiveData: LiveData<MainImage>
         get() = mainImageMutableLiveData
 
     init {
+        viewModelScope.launch {
+            repository.getAsteroids()
+        }
         getData()
+    }
+
+    private fun getData() {
+        // Get Main Image
+        viewModelScope.launch {
+            mainImageMutableLiveData.value = NasaApiProvider.retrofitService.getMainImage().body()
+        }
         getTodayAsteroids()
     }
 
-   private fun getData() {
-        val calendar = Calendar.getInstance()
-        val dateFormat = SimpleDateFormat(Constants.API_QUERY_DATE_FORMAT, Locale.getDefault())
-        currentTime = dateFormat.format(calendar.time)
-        calendar.add(Calendar.WEEK_OF_YEAR,1)
-        dateAfterSevenDays = dateFormat.format(calendar.time)
-       viewModelScope.launch{
-           mainImageMutableLiveData.value = NasaApiProvider.retrofitService.getMainImage().body()
-       }
-
-       val constraints = Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).setRequiresCharging(true).build()
-       val workRequest = PeriodicWorkRequest.Builder(DataWorker::class.java,1,TimeUnit.DAYS)
-           .setConstraints(constraints).build()
-
-       WorkManager.getInstance().enqueueUniquePeriodicWork(DataWorker.WORK_NAME,ExistingPeriodicWorkPolicy.KEEP,workRequest)
-    }
-    fun getTodayAsteroids(){
-        viewModelScope.launch(Dispatchers.IO) {
-            val data =  dao.getToDay(currentTime)
-            withContext(Dispatchers.Main){
-                asteroidList.value = data
-                showProgressBar.value = false
+    fun getTodayAsteroids() {
+        viewModelScope.launch {
+            db.asteroidDao().getToDay(getToday()).collect{
+                _asteroids.value = it
             }
         }
     }
 
-    fun getWeekAsteroids(){
-        viewModelScope.launch(Dispatchers.IO) {
-            val data =  dao.getWeek(currentTime,dateAfterSevenDays)
-            withContext(Dispatchers.Main){
-                asteroidList.value = data
-                showProgressBar.value = false
+    fun getWeekAsteroids() {
+        viewModelScope.launch {
+            db.asteroidDao().getWeek(getToday(), getSeventhDay()).collect{
+                _asteroids.value = it
             }
         }
     }
 
     fun getSavedAsteroids() {
-        viewModelScope.launch(Dispatchers.IO) {
-        val data =  dao.getAll()
-            withContext(Dispatchers.Main){
-                asteroidList.value = data
-                showProgressBar.value = false
+        viewModelScope.launch {
+            db.asteroidDao().getAll().collect{
+                _asteroids.value = it
             }
         }
-
     }
-
-
 
 
 }

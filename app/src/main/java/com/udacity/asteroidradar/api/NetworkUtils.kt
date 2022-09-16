@@ -8,6 +8,9 @@ import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 
+val calendar = Calendar.getInstance()
+val dateFormat = SimpleDateFormat(Constants.API_QUERY_DATE_FORMAT, Locale.getDefault())
+
 fun parseAsteroidsJsonResult(jsonResult: JSONObject): ArrayList<Asteroid> {
     val nearEarthObjectsJson = jsonResult.getJSONObject("near_earth_objects")
 
@@ -58,4 +61,20 @@ private fun getNextSevenDaysFormattedDates(): ArrayList<String> {
     Log.d("MainViewModel", "getFormattedList: $formattedDateList }")
 
     return formattedDateList
+}
+
+fun getToday(): String {
+    val calendar = Calendar.getInstance()
+    return formatDate(calendar.time)
+}
+
+fun getSeventhDay(): String {
+    val calendar = Calendar.getInstance()
+    calendar.add(Calendar.DAY_OF_YEAR, 7)
+    return formatDate(calendar.time)
+}
+
+private fun formatDate(date: Date): String {
+    val dateFormat = SimpleDateFormat(Constants.API_QUERY_DATE_FORMAT, Locale.getDefault())
+    return dateFormat.format(date)
 }

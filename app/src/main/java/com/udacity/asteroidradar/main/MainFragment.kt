@@ -10,6 +10,8 @@ import com.udacity.asteroidradar.R
 import com.udacity.asteroidradar.databinding.FragmentMainBinding
 
 class MainFragment : Fragment() {
+    private lateinit var binding: FragmentMainBinding
+    private lateinit var adapter: AsteroidAdapter
 
     private val viewModel: MainViewModel by lazy {
         val factory = MainViewModelFactory(requireActivity().application)
@@ -18,19 +20,34 @@ class MainFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        val binding = FragmentMainBinding.inflate(inflater)
+        binding = FragmentMainBinding.inflate(inflater)
         binding.lifecycleOwner = this
 
         binding.viewModel = viewModel
 
+        setUpRecyclerAdapter()
+        setObservers()
         setHasOptionsMenu(true)
+        return binding.root
+    }
 
-        val adapter = AsteroidAdapter(AsteroidAdapter.AsteroidClickListener {
+    private fun setUpRecyclerAdapter(){
+        adapter = AsteroidAdapter(AsteroidAdapter.AsteroidClickListener {
             findNavController().navigate(MainFragmentDirections.actionShowDetail(it))
         })
 
         binding.asteroidRecycler.adapter = adapter
-        return binding.root
+    }
+
+    private fun setObservers() {
+        viewModel.asteroids.observe(viewLifecycleOwner){ asteroids ->
+            viewModel.showProgressBar.value = false
+            if (asteroids != null) {
+                adapter.submitList(asteroids)
+                binding.asteroidRecycler.smoothScrollToPosition(0)
+            }
+        }
+
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
