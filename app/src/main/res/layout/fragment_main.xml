@@ -45,6 +45,7 @@
                 android:text="@string/image_of_the_day" />
         </FrameLayout>
 
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/asteroid_recycler"
             android:layout_width="match_parent"
@@ -53,32 +54,22 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
-            tools:listitem="@layout/asteroid_item"
-            tools:itemCount="10"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/activity_main_image_of_the_day_layout"
-            app:layout_constraintVertical_bias="0.0"
-            />
-
-        <ProgressBar
-            android:id="@+id/progress_bar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:layout_constraintBottom_toBottomOf="@+id/asteroid_recycler"
-            app:layout_constraintEnd_toEndOf="@+id/asteroid_recycler"
-            app:layout_constraintStart_toStartOf="@+id/asteroid_recycler"
-            app:layout_constraintTop_toBottomOf="@+id/activity_main_image_of_the_day_layout"
-            showProgressBar="@{viewModel.showProgressBar}"/>
+            app:layout_constraintVertical_bias="1.0"
+            tools:itemCount="10"
+            tools:listitem="@layout/asteroid_item" />
 
         <ProgressBar
             android:id="@+id/status_loading_wheel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:indeterminate="true"
-            android:visibility="gone"
+            android:visibility="visible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@+id/activity_main_image_of_the_day_layout"
+            app:showProgressBar="@{viewModel.showProgressBar}" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

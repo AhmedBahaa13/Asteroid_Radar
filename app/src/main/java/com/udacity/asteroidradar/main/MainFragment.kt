@@ -6,8 +6,10 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.udacity.asteroidradar.AsteroidAdapter
+import com.udacity.asteroidradar.DataWorker
 import com.udacity.asteroidradar.R
 import com.udacity.asteroidradar.databinding.FragmentMainBinding
+import com.udacity.asteroidradar.repository.AsteroidsRepository
 
 class MainFragment : Fragment() {
     private lateinit var binding: FragmentMainBinding
@@ -48,6 +50,9 @@ class MainFragment : Fragment() {
             }
         }
 
+        AsteroidsRepository.isFinished.observe(viewLifecycleOwner){
+            if (it) viewModel.getTodayAsteroids()
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {

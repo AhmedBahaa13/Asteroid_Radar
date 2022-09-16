@@ -2,6 +2,7 @@ package com.udacity.asteroidradar
 
 import android.content.Context
 import android.util.Log
+import androidx.lifecycle.MutableLiveData
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.udacity.asteroidradar.database.AsteroidDatabase
@@ -19,6 +20,7 @@ class DataWorker(context: Context, workerParameters: WorkerParameters) :
         val repo = AsteroidsRepository(db,)
         return try {
             repo.getAsteroids()
+
             Result.success()
         } catch (e: SocketTimeoutException) {
             Log.d("MainViewModel", "doWork: ${e.message}")

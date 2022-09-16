@@ -35,9 +35,6 @@ class MainViewModel(val app: Application) : AndroidViewModel(app) {
         get() = mainImageMutableLiveData
 
     init {
-        viewModelScope.launch {
-            repository.getAsteroids()
-        }
         getData()
     }
 

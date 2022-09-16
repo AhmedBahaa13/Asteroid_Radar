@@ -2,8 +2,10 @@ package com.udacity.asteroidradar.repository
 
 import android.util.Log
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.udacity.asteroidradar.Asteroid
 import com.udacity.asteroidradar.Constants
+import com.udacity.asteroidradar.DataWorker
 import com.udacity.asteroidradar.api.NasaApiProvider
 import com.udacity.asteroidradar.api.getSeventhDay
 import com.udacity.asteroidradar.api.getToday
@@ -18,7 +20,9 @@ import java.util.*
 class AsteroidsRepository(
     private val database: AsteroidDatabase
 ) {
-
+    companion object{
+        val isFinished = MutableLiveData<Boolean>(false)
+    }
 
     suspend fun getAsteroids() {
         withContext(Dispatchers.IO) {
@@ -28,6 +32,9 @@ class AsteroidsRepository(
                 val asteroids = parseAsteroidsJsonResult(JSONObject(response.body()!!))
                 Log.d("DataWorker", "asteroids Size: ${asteroids.size}")
                 database.asteroidDao().insert(*asteroids.toTypedArray())
+            }
+            withContext(Dispatchers.Main){
+                isFinished.value = true
             }
         }
     }
