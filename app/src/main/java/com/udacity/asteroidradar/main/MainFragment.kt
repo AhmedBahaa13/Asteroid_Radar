@@ -43,10 +43,10 @@ class MainFragment : Fragment() {
 
     private fun setObservers() {
         viewModel.asteroids.observe(viewLifecycleOwner){ asteroids ->
-            binding.statusLoadingWheel.visibility = View.GONE
-            if (asteroids != null) {
+            if (!asteroids.isNullOrEmpty()) {
                 adapter.submitList(asteroids)
                 binding.asteroidRecycler.smoothScrollToPosition(0)
+                binding.statusLoadingWheel.visibility = View.GONE
             }
         }
 
