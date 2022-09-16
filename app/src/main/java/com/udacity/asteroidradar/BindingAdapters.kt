@@ -63,6 +63,7 @@ fun bindRecyclerData(recyclerView: RecyclerView,list:List<Asteroid>?){
         adapter.submitList(it)
     }
     Log.d("MainViewModel", "bindRecyclerData: $list")
+    recyclerView.smoothScrollToPosition(0)
 }
 
 @BindingAdapter("setMainImage")

@@ -14,6 +14,10 @@ import java.util.*
 
 class DataWorker(context: Context, workerParameters: WorkerParameters) :
     Worker(context, workerParameters) {
+    companion object{
+        const val WORK_NAME = "GetData"
+    }
+
     override fun doWork(): Result {
         val dao = AsteroidDatabase.getInstance(applicationContext).asteroidDao()
         try {

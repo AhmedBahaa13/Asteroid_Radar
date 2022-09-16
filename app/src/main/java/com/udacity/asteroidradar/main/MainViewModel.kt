@@ -14,6 +14,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 
 class MainViewModel(val app:Application) : AndroidViewModel(app) {
@@ -47,11 +48,11 @@ class MainViewModel(val app:Application) : AndroidViewModel(app) {
            mainImageMutableLiveData.value = NasaApiProvider.retrofitService.getMainImage().body()
        }
 
-       val constraints = Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()
-       val onetimeJob: OneTimeWorkRequest = OneTimeWorkRequest.Builder(DataWorker::class.java)
+       val constraints = Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).setRequiresCharging(true).build()
+       val workRequest = PeriodicWorkRequest.Builder(DataWorker::class.java,1,TimeUnit.DAYS)
            .setConstraints(constraints).build()
 
-       WorkManager.getInstance().enqueue(onetimeJob)
+       WorkManager.getInstance().enqueueUniquePeriodicWork(DataWorker.WORK_NAME,ExistingPeriodicWorkPolicy.KEEP,workRequest)
     }
     fun getTodayAsteroids(){
         viewModelScope.launch(Dispatchers.IO) {
