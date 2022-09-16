@@ -20,8 +20,6 @@ class MainViewModel(val app: Application) : AndroidViewModel(app) {
     private val db = AsteroidDatabase.getInstance(app)
     private val repository = AsteroidsRepository(db)
 
-    val showProgressBar = MutableLiveData<Boolean>(true)
-
     private var _asteroids = MutableLiveData<List<Asteroid>>()
     val asteroids: LiveData<List<Asteroid>>
         get() = _asteroids
